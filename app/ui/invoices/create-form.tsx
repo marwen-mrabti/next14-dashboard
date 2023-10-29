@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { CustomerField } from '@/app/lib/definitions';
-import Link from 'next/link';
+import { CustomerField } from "@/app/lib/definitions";
+import Link from "next/link";
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
-} from '@heroicons/react/24/outline';
-import { Button } from '../button';
+} from "@heroicons/react/24/outline";
+import { Button } from "../button";
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
   return (
@@ -29,8 +29,8 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               <option value="" disabled>
                 Select a customer
               </option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
+              {customers.map((customer, index) => (
+                <option key={index} value={customer.id}>
                   {customer.name}
                 </option>
               ))}
