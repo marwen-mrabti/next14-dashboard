@@ -1,20 +1,16 @@
 import React from "react";
-import RevenueChart from "../ui/dashboard/revenue-chart";
-import { prisma } from "../lib/prisma";
-import { Revenue } from "@prisma/client";
-import { lusitana } from "../ui/fonts";
-import { fetchCardData, fetchLatestInvoices } from "../lib/data";
-import LatestInvoices from "../ui/dashboard/latest-invoices";
-import Cards, { Card } from "../ui/dashboard/cards";
+import RevenueChart from "../../ui/dashboard/revenue-chart";
+import { lusitana } from "../../ui/fonts";
+import { fetchCardData, fetchLatestInvoices, fetchRevenues } from "../../lib/data";
+import LatestInvoices from "../../ui/dashboard/latest-invoices";
+import Cards from "../../ui/dashboard/cards";
 
-const getRevenue = async (): Promise<Revenue[] | []> => {
-	const revenues = await prisma.revenue.findMany({});
-	return revenues;
-};
+//revalidate works only in production
+export const revalidate = 180; // revalidate every 180 seconds
 
 const DashboardPage = async () => {
 	const [revenues, latestInvoices, cardData] = await Promise.all([
-		getRevenue(),
+		fetchRevenues(),
 		fetchLatestInvoices(),
 		fetchCardData()
 	]);

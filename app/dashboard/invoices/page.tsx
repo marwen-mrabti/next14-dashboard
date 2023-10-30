@@ -1,6 +1,11 @@
 import React from "react";
 import { Invoice } from "@prisma/client";
 import { prisma } from "@/app/lib/prisma";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+	title: "Acme - dashboard/invoices"
+};
 
 const getInvoices = async (): Promise<Invoice[]> => {
 	const invoices = await prisma.invoice.findMany({});
@@ -10,7 +15,7 @@ const getInvoices = async (): Promise<Invoice[]> => {
 
 const InvoicesPage = async () => {
 	const invoices = await getInvoices();
-	console.log(invoices);
+
 	return <div>Invoices Page</div>;
 };
 

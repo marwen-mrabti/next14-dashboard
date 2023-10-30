@@ -4,15 +4,30 @@ import {
 	InvoiceForm,
 	InvoicesTable,
 	LatestInvoiceRaw,
-	User,
-	Revenue
+	User
 } from "./definitions";
+
 import { formatCurrency } from "./utils";
 import { prisma } from "./prisma";
+import { Revenue } from "@prisma/client";
 import { TLatestInvoice } from "../ui/dashboard/latest-invoices";
-import { TCardData } from "../ui/dashboard/cards";
+// Add noStore() to the start of the data fetching function to prevent the response from being cached.
+// This is equivalent to in fetch(..., {cache: 'no-store'}).
+import { unstable_noStore as noStore } from "next/cache";
+
+export const fetchRevenues = async (): Promise<Revenue[] | []> => {
+	noStore();
+	try {
+		const revenues = await prisma.revenue.findMany({});
+		return revenues;
+	} catch (error) {
+		console.error("Database Error:", error);
+		throw new Error("Failed to fetch the revenues data.");
+	}
+};
 
 export async function fetchLatestInvoices() {
+	noStore();
 	try {
 		const invoices = await prisma.invoice.findMany({
 			include: {
@@ -48,6 +63,7 @@ export async function fetchLatestInvoices() {
 }
 
 export async function fetchCardData() {
+	noStore();
 	try {
 		const [invoicesCount, customersCount, totalPaidInvoices, totalPendingInvoices] =
 			await Promise.all([
@@ -77,40 +93,50 @@ export async function fetchCardData() {
 	}
 }
 
-/*
 const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(query: string, currentPage: number) {
+	noStore();
 	const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
 	try {
-		const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+		const invoices = await prisma.invoice.findMany({
+			select: {
+				id: true,
+				amount: true,
+				date: true,
+				status: true,
+				customer: {
+					select: {
+						name: true,
+						email: true,
+						image_url: true
+					}
+				}
+			},
+			where: {
+				OR: [
+					{ customer: { name: { contains: query, mode: "insensitive" } } },
+					{ customer: { email: { contains: query, mode: "insensitive" } } },
+					{ amount: { equals: parseFloat(query) } }
+					// { date: { contains: query, mode: "insensitive" } },
+					// { status: { contains: query, mode: "insensitive" } }
+				]
+			},
+			orderBy: {
+				date: "desc"
+			},
+			take: ITEMS_PER_PAGE,
+			skip: offset
+		});
 
-		return invoices.rows;
+		return invoices;
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to fetch invoices.");
 	}
 }
 
+/*
 export async function fetchInvoicesPages(query: string) {
 	try {
 		const count = await sql`SELECT COUNT(*)
