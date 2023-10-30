@@ -1,12 +1,16 @@
-const { sql } = require('@vercel/postgres');
-const {
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+import  {
   invoices,
   customers,
   revenue,
   users,
-} = require('../app/lib/placeholder-data.js');
-const bcrypt = require('bcrypt');
+} from  '../app/lib/placeholder-data.js'
+import bcrypt from 'bcrypt';
 
+/*
 async function seedUsers() {
   try {
     await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -45,78 +49,48 @@ async function seedUsers() {
     throw error;
   }
 }
+*/
 
-async function seedInvoices() {
+
+
+async function seedUsers() {
   try {
-    await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
-    // Create the "invoices" table if it doesn't exist
-    const createTable = await sql`
-    CREATE TABLE IF NOT EXISTS invoices (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    customer_id UUID NOT NULL,
-    amount INT NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    date DATE NOT NULL
+    const usersHashed = await Promise.all(
+    users.map(async (user) => {
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      return {
+        ...user,
+        password: hashedPassword,
+      };
+    })
   );
-`;
 
-    console.log(`Created "invoices" table`);
-
-    // Insert data into the "invoices" table
-    const insertedInvoices = await Promise.all(
-      invoices.map(
-        (invoice) => sql`
-        INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES (${invoice.customer_id}, ${invoice.amount}, ${invoice.status}, ${invoice.date})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-      ),
-    );
-
-    console.log(`Seeded ${insertedInvoices.length} invoices`);
+    const insertedUsers = await prisma.user.createMany({
+      data: usersHashed,
+    });
 
     return {
-      createTable,
-      invoices: insertedInvoices,
+
+      users: insertedUsers,
     };
   } catch (error) {
-    console.error('Error seeding invoices:', error);
+    console.error('Error seeding users:', error);
     throw error;
   }
 }
 
+
 async function seedCustomers() {
   try {
-    await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
-    // Create the "customers" table if it doesn't exist
-    const createTable = await sql`
-      CREATE TABLE IF NOT EXISTS customers (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        image_url VARCHAR(255) NOT NULL
-      );
-    `;
+    const insertedCustomers = await prisma.customer.createMany({
+      data: customers,
+    });
 
-    console.log(`Created "customers" table`);
 
-    // Insert data into the "customers" table
-    const insertedCustomers = await Promise.all(
-      customers.map(
-        (customer) => sql`
-        INSERT INTO customers (id, name, email, image_url)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-      ),
-    );
-
-    console.log(`Seeded ${insertedCustomers.length} customers`);
 
     return {
-      createTable,
+
       customers: insertedCustomers,
     };
   } catch (error) {
@@ -125,33 +99,42 @@ async function seedCustomers() {
   }
 }
 
-async function seedRevenue() {
+
+
+async function seedInvoices() {
   try {
-    // Create the "revenue" table if it doesn't exist
-    const createTable = await sql`
-      CREATE TABLE IF NOT EXISTS revenue (
-        month VARCHAR(4) NOT NULL UNIQUE,
-        revenue INT NOT NULL
-      );
-    `;
 
-    console.log(`Created "revenue" table`);
 
-    // Insert data into the "revenue" table
-    const insertedRevenue = await Promise.all(
-      revenue.map(
-        (rev) => sql`
-        INSERT INTO revenue (month, revenue)
-        VALUES (${rev.month}, ${rev.revenue})
-        ON CONFLICT (month) DO NOTHING;
-      `,
-      ),
-    );
+    const insertedInvoices = await prisma.invoice.createMany({
+      data: invoices,
+    });
 
-    console.log(`Seeded ${insertedRevenue.length} revenue`);
+
+
 
     return {
-      createTable,
+
+      invoices: insertedInvoices,
+    };
+  } catch (error) {
+    console.error('Error seeding invoices:', error);
+    throw error;
+  }
+}
+
+
+
+
+
+
+async function seedRevenue() {
+  try {
+    const insertedRevenue = await prisma.revenue.createMany({
+      data: revenue,
+    });
+
+    return {
+
       revenue: insertedRevenue,
     };
   } catch (error) {
@@ -161,8 +144,8 @@ async function seedRevenue() {
 }
 
 (async () => {
-  await seedUsers();
+  // await seedUsers();
   await seedCustomers();
-  await seedInvoices();
-  await seedRevenue();
+  // await seedInvoices();
+  // await seedRevenue();
 })();
