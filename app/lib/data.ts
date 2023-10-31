@@ -9,7 +9,7 @@ import {
 
 import { formatCurrency } from "./utils";
 import { prisma } from "./prisma";
-import { Revenue } from "@prisma/client";
+import { Prisma, Revenue } from "@prisma/client";
 import { TLatestInvoice } from "../ui/dashboard/latest-invoices";
 // Add noStore() to the start of the data fetching function to prevent the response from being cached.
 // This is equivalent to in fetch(..., {cache: 'no-store'}).
@@ -93,35 +93,46 @@ export async function fetchCardData() {
 	}
 }
 
-const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(query: string, currentPage: number) {
+const ITEMS_PER_PAGE = 5;
+export async function fetchFilteredInvoices(
+	query: string | undefined,
+	currentPage: number,
+	status: "paid" | "pending" | undefined
+) {
 	noStore();
-	const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+	const offset = (currentPage - 1) * ITEMS_PER_PAGE || 0;
+	const selectFields = {
+		id: true,
+		amount: true,
+		date: true,
+		status: true,
+		customer: {
+			select: {
+				name: true,
+				email: true,
+				image_url: true
+			}
+		}
+	};
+
+	let whereClause: Prisma.InvoiceWhereInput = query
+		? {
+				AND: [
+					{ status: status },
+					{
+						OR: [
+							{ customer: { name: { contains: query, mode: "insensitive" } } },
+							{ customer: { email: { contains: query, mode: "insensitive" } } }
+						]
+					}
+				]
+		  }
+		: { status: status };
 
 	try {
 		const invoices = await prisma.invoice.findMany({
-			select: {
-				id: true,
-				amount: true,
-				date: true,
-				status: true,
-				customer: {
-					select: {
-						name: true,
-						email: true,
-						image_url: true
-					}
-				}
-			},
-			where: {
-				OR: [
-					{ customer: { name: { contains: query, mode: "insensitive" } } },
-					{ customer: { email: { contains: query, mode: "insensitive" } } },
-					{ amount: { equals: parseFloat(query) } }
-					// { date: { contains: query, mode: "insensitive" } },
-					// { status: { contains: query, mode: "insensitive" } }
-				]
-			},
+			select: selectFields,
+			where: whereClause,
 			orderBy: {
 				date: "desc"
 			},
@@ -181,18 +192,20 @@ export async function fetchInvoiceById(id: string) {
 		console.error("Database Error:", error);
 	}
 }
+*/
 
 export async function fetchCustomers() {
 	try {
-		const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
+		const customers = await prisma.customer.findMany({
+			select: {
+				id: true,
+				name: true
+			},
+			orderBy: {
+				name: "asc"
+			}
+		});
 
-		const customers = data.rows;
 		return customers;
 	} catch (err) {
 		console.error("Database Error:", err);
@@ -200,6 +213,7 @@ export async function fetchCustomers() {
 	}
 }
 
+/*
 export async function fetchFilteredCustomers(query: string) {
 	try {
 		const data = await sql<CustomersTable>`

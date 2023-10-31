@@ -2,6 +2,7 @@ import { generateYAxis } from "@/app/lib/utils";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { lusitana } from "@/app/ui/fonts";
 import { Revenue } from "@prisma/client";
+import { fetchRevenues } from "@/app/lib/data";
 
 // This component is representational only.
 // For data visualization UI, check out:
@@ -9,7 +10,9 @@ import { Revenue } from "@prisma/client";
 // https://www.chartjs.org/
 // https://airbnb.io/visx/
 
-export default async function RevenueChart({ revenues }: { revenues: Revenue[] }) {
+export default async function RevenueChart() {
+	const revenues = await fetchRevenues();
+
 	const chartHeight = 350;
 
 	const { yAxisLabels, topLabel } = generateYAxis(revenues);

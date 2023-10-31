@@ -2,7 +2,7 @@ import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import Image from "next/image";
 import { lusitana } from "@/app/ui/fonts";
-import { Invoice, Customer } from "@prisma/client";
+import { fetchLatestInvoices } from "@/app/lib/data";
 
 export type TLatestInvoice = {
 	id: string;
@@ -15,12 +15,10 @@ export type TLatestInvoice = {
 	};
 };
 
-export default async function LatestInvoices({
-	latestInvoices
-}: {
-	latestInvoices: TLatestInvoice[];
-}) {
-	return (
+export default async function LatestInvoices() {
+	const latestInvoices: TLatestInvoice[] = await fetchLatestInvoices();
+
+	return !latestInvoices.length ? null : (
 		<div className="flex w-full flex-col md:col-span-4 lg:col-span-4">
 			<h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>Latest Invoices</h2>
 			<div className="flex grow flex-col justify-between rounded-xl bg-gray-50 p-4">
