@@ -99,8 +99,9 @@ export async function fetchFilteredInvoices(
 	currentPage: number,
 	status: "paid" | "pending" | undefined
 ) {
-	noStore();
+	noStore(); // Prevents the response from being cached.
 	const offset = (currentPage - 1) * ITEMS_PER_PAGE || 0;
+
 	const selectFields = {
 		id: true,
 		amount: true,
@@ -127,7 +128,9 @@ export async function fetchFilteredInvoices(
 					}
 				]
 		  }
-		: { status: status };
+		: !query && status
+		? { status: status }
+		: {};
 
 	try {
 		const invoices = await prisma.invoice.findMany({
@@ -168,31 +171,61 @@ export async function fetchInvoicesPages(query: string) {
 		throw new Error("Failed to fetch total number of invoices.");
 	}
 }
+*/
+
+export async function fetchInvoicesPages(query: string, status: "paid" | "pending" | undefined) {
+	let whereClause: Prisma.InvoiceWhereInput = query
+		? {
+				AND: [
+					{ status: status },
+					{
+						OR: [
+							{ customer: { name: { contains: query, mode: "insensitive" } } },
+							{ customer: { email: { contains: query, mode: "insensitive" } } }
+						]
+					}
+				]
+		  }
+		: !query && status
+		? { status: status }
+		: {};
+
+	try {
+		const count = await prisma.invoice.count({
+			where: whereClause
+		});
+
+		const totalPages = Math.ceil(count / ITEMS_PER_PAGE);
+		console.log("totalPages", totalPages);
+		return totalPages;
+	} catch (error) {
+		console.error("Database Error:", error);
+		throw new Error("Failed to fetch total number of invoices.");
+	}
+}
 
 export async function fetchInvoiceById(id: string) {
 	try {
-		const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
+		const invoice = (await prisma.invoice.findUnique({
+			where: {
+				id: id
+			},
+			select: {
+				id: true,
+				customer_id: true,
+				amount: true,
+				status: true
+			}
+		})) as { id: string; customer_id: string; amount: number; status: string };
 
-		const invoice = data.rows.map((invoice) => ({
+		return {
 			...invoice,
-			// Convert amount from cents to dollars
 			amount: invoice.amount / 100
-		}));
-
-		return invoice[0];
+		};
 	} catch (error) {
 		console.error("Database Error:", error);
 	}
 }
-*/
 
 export async function fetchCustomers() {
 	try {

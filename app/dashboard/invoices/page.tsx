@@ -8,6 +8,7 @@ import { CreateInvoice } from "@/app/ui/invoices/buttons";
 import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
 import InvoicesTable from "@/app/ui/invoices/table";
 import Pagination from "@/app/ui/invoices/pagination";
+import { fetchInvoicesPages } from "@/app/lib/data";
 
 export const metadata: Metadata = {
 	title: "Acme - dashboard/invoices"
@@ -21,7 +22,7 @@ const InvoicesPage = async ({
 	const query = searchParams?.query || "";
 	const currentPage = searchParams?.page || 1;
 	const status = searchParams?.status;
-	const totalPages = Math.ceil((await prisma.invoice.count()) / 10);
+	const totalPages = await fetchInvoicesPages(query, status);
 
 	return (
 		<div className="w-full">
@@ -36,7 +37,7 @@ const InvoicesPage = async ({
 				<InvoicesTable query={query} currentPage={currentPage} status={status} />
 			</Suspense>
 			<div className="mt-5 flex w-full justify-center">
-				<Pagination totalPages={totalPages} />
+				{totalPages <= 0 ? null : <Pagination totalPages={totalPages} />}
 			</div>
 		</div>
 	);
