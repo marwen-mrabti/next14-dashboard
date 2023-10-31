@@ -16,11 +16,11 @@ export const metadata: Metadata = {
 const InvoicesPage = async ({
 	searchParams
 }: {
-	searchParams: { query: string; page: number; status: "paid" | "pending" |undefined };
+	searchParams: { query: string; page: number; status: "paid" | "pending" | undefined };
 }) => {
 	const query = searchParams?.query || "";
 	const currentPage = searchParams?.page || 1;
-	const status = searchParams?.status ;
+	const status = searchParams?.status;
 	const totalPages = Math.ceil((await prisma.invoice.count()) / 10);
 
 	return (
@@ -36,7 +36,7 @@ const InvoicesPage = async ({
 				<InvoicesTable query={query} currentPage={currentPage} status={status} />
 			</Suspense>
 			<div className="mt-5 flex w-full justify-center">
-				{/* <Pagination totalPages={totalPages} /> */}
+				<Pagination totalPages={totalPages} />
 			</div>
 		</div>
 	);
