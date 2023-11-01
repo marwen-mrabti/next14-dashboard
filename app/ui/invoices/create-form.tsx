@@ -8,11 +8,23 @@ import {
 	UserCircleIcon
 } from "@heroicons/react/24/outline";
 import { Button } from "../button";
-import { TCustomerField } from "@/app/dashboard/invoices/create/page";
+import { createNewInvoice } from "@/app/lib/actions";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateInvoiceSchema, TCreateInvoiceSchema, TCustomerField } from "@/app/lib/z.schemas";
 
-export default function Form({ customers }: { customers: TCustomerField[] }) {
+export default function CreateInvoiceForm({ customers }: { customers: TCustomerField[] }) {
+	const form = useForm<TCreateInvoiceSchema>({
+		defaultValues: {
+			customer_id: "",
+			amount: 0,
+			status: "pending"
+		},
+		resolver: zodResolver(CreateInvoiceSchema)
+	});
+
 	return (
-		<form>
+		<form action={createNewInvoice}>
 			<div className="rounded-md bg-gray-50 p-4 md:p-6">
 				{/* Customer Name */}
 				<div className="mb-4">
@@ -22,7 +34,8 @@ export default function Form({ customers }: { customers: TCustomerField[] }) {
 					<div className="relative">
 						<select
 							id="customer"
-							name="customerId"
+							name="customer_id"
+							required
 							className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
 							defaultValue=""
 						>
@@ -51,13 +64,13 @@ export default function Form({ customers }: { customers: TCustomerField[] }) {
 								name="amount"
 								type="number"
 								step="0.01"
-								placeholder="Enter USD amount"
+								placeholder="Enter amount in dollars..."
 								className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+								required
 							/>
 							<CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
 						</div>
 					</div>
-					s
 				</div>
 
 				{/* Invoice Status */}
@@ -73,6 +86,7 @@ export default function Form({ customers }: { customers: TCustomerField[] }) {
 									name="status"
 									type="radio"
 									value="pending"
+									defaultChecked
 									className="h-4 w-4 border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-gray-600"
 								/>
 								<label
@@ -108,7 +122,14 @@ export default function Form({ customers }: { customers: TCustomerField[] }) {
 				>
 					Cancel
 				</Link>
-				<Button type="submit">Create Invoice</Button>
+
+				<Button
+					type="submit"
+					disabled={form.formState.isSubmitting}
+					className="disabled:cursor-not-allowed disabled:bg-blue-400 disabled:text-slate-700"
+				>
+					Create Invoice
+				</Button>
 			</div>
 		</form>
 	);
