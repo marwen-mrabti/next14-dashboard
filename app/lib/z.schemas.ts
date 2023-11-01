@@ -26,9 +26,15 @@ export const LoginSchema = z.object({
 
 export const InvoiceSchema = z.object({
 	id: z.string(),
-	customer_id: z.string(),
-	amount: z.coerce.number(),
-	status: z.enum(["pending", "paid"]).default("pending"),
+	customer_id: z.string({
+		invalid_type_error: "Please select a customer."
+	}),
+	amount: z.coerce.number().gt(0, { message: "please enter an amount greater than 0" }),
+	status: z
+		.enum(["pending", "paid"], {
+			invalid_type_error: "Please select an invoice status."
+		})
+		.default("pending"),
 	date: z.string()
 });
 
@@ -45,6 +51,7 @@ export const UpdateInvoiceSchema = InvoiceSchema.omit({ id: true, date: true });
 //type definitions
 export type TUserSchema = z.infer<typeof UserSchema>;
 export type TLoginSchema = z.infer<typeof LoginSchema>;
+
 export type TInvoiceSchema = z.infer<typeof InvoiceSchema>;
 export type TCreateInvoiceSchema = z.infer<typeof CreateInvoiceSchema>;
 export type TUpdateInvoiceSchema = z.infer<typeof UpdateInvoiceSchema>;

@@ -125,7 +125,7 @@ export async function fetchCustomers() {
 	}
 }
 
-export const ITEMS_PER_PAGE = 5;
+export const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredInvoices(
 	query: string | undefined,
 	currentPage: number,

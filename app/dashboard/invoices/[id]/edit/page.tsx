@@ -2,6 +2,7 @@ import { fetchCustomers, fetchInvoiceById } from "@/app/lib/data";
 import { TCustomerField, TInvoiceSchema } from "@/app/lib/z.schemas";
 import Breadcrumbs from "@/app/ui/invoices/breadcrumbs";
 import EditInvoiceForm from "@/app/ui/invoices/edit-form";
+import { notFound } from "next/navigation";
 import React from "react";
 
 const page = async ({ params }: { params: any }) => {
@@ -11,6 +12,10 @@ const page = async ({ params }: { params: any }) => {
 		fetchInvoiceById(invoiceId),
 		fetchCustomers()
 	])) as [TInvoiceSchema, TCustomerField[]];
+
+	if (!invoice) {
+		notFound();
+	}
 
 	return (
 		<main>
