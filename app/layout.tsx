@@ -4,8 +4,10 @@ import { inter } from "@/app/ui/fonts";
 
 export const metadata: Metadata = {
 	title: "Acme",
-	description: "nextjs learning project",
-	keywords: "nextjs, typescript, tailwindcss, react, prisma, mongodb, SSR, "
+	description: "nextjs dashboard build with app router learning project",
+	metadataBase: new URL("https://next-dashboard-marwen.app.vercel/"),
+	keywords:
+		"nextjs, typescript, tailwindcss, react, prisma, mongodb, SSR, server actions , next-auth"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

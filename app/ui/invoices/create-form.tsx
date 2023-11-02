@@ -11,7 +11,7 @@ import { Button } from "../button";
 import { createNewInvoice } from "@/app/lib/actions";
 
 import { TCustomerField } from "@/app/lib/z.schemas";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 
 export default function CreateInvoiceForm({ customers }: { customers: TCustomerField[] }) {
 	const initialState = { message: null, errors: {} };
@@ -145,14 +145,22 @@ export default function CreateInvoiceForm({ customers }: { customers: TCustomerF
 					Cancel
 				</Link>
 
-				<Button
-					type="submit"
-					disabled={false}
-					className="disabled:cursor-not-allowed disabled:bg-blue-400 disabled:text-slate-700"
-				>
-					Create Invoice
-				</Button>
+				<SubmitButton />
 			</div>
 		</form>
 	);
 }
+
+const SubmitButton = () => {
+	const { pending } = useFormStatus();
+
+	return (
+		<Button
+			type="submit"
+			aria-disabled={pending}
+			className="disabled:cursor-not-allowed disabled:bg-blue-400 disabled:text-slate-700"
+		>
+			Create Invoice
+		</Button>
+	);
+};

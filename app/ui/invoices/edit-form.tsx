@@ -15,7 +15,7 @@ import {
 	UpdateInvoiceSchema
 } from "@/app/lib/z.schemas";
 import { updateInvoice } from "@/app/lib/actions";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
 
 export default function EditInvoiceForm({
 	invoice,
@@ -155,14 +155,22 @@ export default function EditInvoiceForm({
 				>
 					Cancel
 				</Link>
-				<Button
-					type="submit"
-					disabled={false}
-					className="disabled:cursor-not-allowed disabled:bg-blue-400 disabled:text-slate-700"
-				>
-					Edit Invoice
-				</Button>
+				<SubmitButton />
 			</div>
 		</form>
 	);
 }
+
+const SubmitButton = () => {
+	const { pending } = useFormStatus();
+
+	return (
+		<Button
+			type="submit"
+			aria-disabled={pending}
+			className="disabled:cursor-not-allowed disabled:bg-blue-400 disabled:text-slate-700"
+		>
+			Update Invoice
+		</Button>
+	);
+};

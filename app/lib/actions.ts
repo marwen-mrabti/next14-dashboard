@@ -4,18 +4,23 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { format } from "date-fns";
 import { prisma } from "./prisma";
-import {
-	TCreateInvoiceSchema,
-	CreateInvoiceSchema,
-	TUpdateInvoiceSchema,
-	UpdateInvoiceSchema
-} from "./z.schemas";
+import { CreateInvoiceSchema, UpdateInvoiceSchema, LoginSchema } from "./z.schemas";
+import { signIn } from "@/auth";
 
-export const login = async (email: string, password: string) => {};
 
-export const createNewCustomer = async (customerData: FormData) => {};
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+	try {
+		await signIn("credentials", Object.fromEntries(formData));
+	} catch (error) {
+		if ((error as Error).message.includes("CredentialsSignin")) {
+			return "CredentialSignin";
+		}
+		throw error;
+	}
+}
 
-export type TState = {
+
+export type TInvoiceState = {
 	errors?: {
 		customer_id?: string[];
 		amount?: string[];
@@ -23,8 +28,7 @@ export type TState = {
 	};
 	message?: string | null;
 };
-
-export const createNewInvoice = async (prevState: TState, invoiceData: FormData) => {
+export const createNewInvoice = async (prevState: TInvoiceState, invoiceData: FormData) => {
 	const invoiceObject = Object.fromEntries(invoiceData.entries());
 
 	const validatedFields = CreateInvoiceSchema.safeParse({
@@ -64,7 +68,7 @@ export const createNewInvoice = async (prevState: TState, invoiceData: FormData)
 	redirect("/dashboard/invoices");
 };
 
-export const updateInvoice = async (prevState: TState, invoiceData: FormData) => {
+export const updateInvoice = async (prevState: TInvoiceState, invoiceData: FormData) => {
 	const invoiceObject = Object.fromEntries(invoiceData.entries());
 
 	const invoiceId = invoiceObject.id as string;
