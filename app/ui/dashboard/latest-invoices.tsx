@@ -32,7 +32,7 @@ export default async function LatestInvoices() {
 										"border-t": i !== 0
 									})}
 								>
-									<div className="flex items-center">
+									<div className="flex items-center justify-center">
 										<Image
 											src={`/customers/${invoice.customer.image_url}`}
 											alt={`${invoice.customer.name}'s profile picture`}
