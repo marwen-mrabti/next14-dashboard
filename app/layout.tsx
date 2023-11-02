@@ -5,7 +5,7 @@ import { inter } from "@/app/ui/fonts";
 export const metadata: Metadata = {
 	title: "Acme",
 	description: "nextjs dashboard build with app router learning project",
-	metadataBase: new URL("https://next-dashboard-marwen.app.vercel/"),
+	metadataBase: new URL("https://next14-dashboard-nine.vercel.app/"),
 	keywords:
 		"nextjs, typescript, tailwindcss, react, prisma, mongodb, SSR, server actions , next-auth"
 };
