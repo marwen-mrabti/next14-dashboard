@@ -7,7 +7,6 @@ import { prisma } from "./prisma";
 import { CreateInvoiceSchema, UpdateInvoiceSchema, LoginSchema } from "./z.schemas";
 import { signIn } from "@/auth";
 
-
 export async function authenticate(prevState: string | undefined, formData: FormData) {
 	try {
 		await signIn("credentials", Object.fromEntries(formData));
@@ -18,7 +17,6 @@ export async function authenticate(prevState: string | undefined, formData: Form
 		throw error;
 	}
 }
-
 
 export type TInvoiceState = {
 	errors?: {

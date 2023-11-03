@@ -3,6 +3,7 @@ import { UpdateInvoice, DeleteInvoice } from "@/app/ui/invoices/buttons";
 import InvoiceStatus from "@/app/ui/invoices/status";
 import { formatDateToLocal, formatCurrency } from "@/app/lib/utils";
 import { fetchFilteredInvoices } from "@/app/lib/data";
+import { DeleteModal } from "../deleteModal";
 
 export type TInvoice = {
 	id: string;
@@ -112,10 +113,10 @@ export default async function InvoicesTable({
 									<td className="whitespace-nowrap px-3 py-3">
 										<InvoiceStatus status={invoice.status} />
 									</td>
-									<td className="whitespace-nowrap py-3 pl-6 pr-3">
+									<td className="whitespace-nowrap  py-3 pl-6 pr-3">
 										<div className="flex justify-end gap-3">
 											<UpdateInvoice id={invoice.id} />
-											<DeleteInvoice id={invoice.id} />
+											<DeleteModal title="Delete Invoice" id={invoice.id} />
 										</div>
 									</td>
 								</tr>
