@@ -15,6 +15,8 @@ export const fetchRevenues = async (): Promise<Revenue[] | []> => {
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to fetch the revenues data.");
+	} finally {
+		await prisma.$disconnect();
 	}
 };
 
@@ -51,6 +53,8 @@ export async function fetchLatestInvoices() {
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to fetch the latest invoices.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -82,6 +86,8 @@ export async function fetchCardData() {
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to card data.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -103,6 +109,8 @@ export async function fetchInvoiceById(id: string) {
 		return { ...invoice, amount: invoice.amount / 100 };
 	} catch (error) {
 		console.error("Database Error:", error);
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -122,6 +130,8 @@ export async function fetchCustomers() {
 	} catch (err) {
 		console.error("Database Error:", err);
 		throw new Error("Failed to fetch all customers.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -179,6 +189,8 @@ export async function fetchFilteredInvoices(
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to fetch invoices.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -247,6 +259,8 @@ export async function fetchFilteredCustomers(query: string, currentPage: number)
 	} catch (err) {
 		console.error("Database Error:", err);
 		throw new Error("Failed to fetch customer table.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -277,6 +291,8 @@ export async function fetchInvoicesPages(query: string, status: "paid" | "pendin
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to fetch total number of invoices.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -300,6 +316,8 @@ export async function fetchCustomersPages(query: string) {
 	} catch (error) {
 		console.error("Database Error:", error);
 		throw new Error("Failed to fetch total number of invoices.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }
 
@@ -314,5 +332,7 @@ export async function getUser(email: string) {
 	} catch (error) {
 		console.error("Failed to fetch user:", error);
 		throw new Error("Failed to fetch user.");
+	} finally {
+		await prisma.$disconnect();
 	}
 }

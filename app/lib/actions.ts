@@ -103,8 +103,9 @@ export const updateInvoice = async (prevState: TInvoiceState, invoiceData: FormD
 		return {
 			message: "Database Error: Failed to Update Invoice."
 		};
+	} finally {
+		await prisma.$disconnect();
 	}
-
 	revalidatePath("/dashboard/invoices");
 	redirect("/dashboard/invoices");
 };
@@ -124,5 +125,7 @@ export const deleteInvoice = async (idData: FormData) => {
 		return {
 			message: "Database Error: Failed to Delete Invoice."
 		};
+	} finally {
+		await prisma.$disconnect();
 	}
 };

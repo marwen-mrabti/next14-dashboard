@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 	title: "Acme - dashboard/invoices"
 };
 
+export const revalidate = 60; // revalidate every 180 seconds
+
 const InvoicesPage = async ({
 	searchParams
 }: {
